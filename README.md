@@ -1,4 +1,4 @@
-# simple-book-library-rest
+# Rest-at-library
 
 To run first buil postgres docker image with required tables:
 
