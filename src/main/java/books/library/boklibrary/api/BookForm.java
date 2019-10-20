@@ -1,18 +1,18 @@
 package books.library.boklibrary.api;
 
-import lombok.Value;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
-@Value
+@Data
 class BookForm {
     @NotBlank
-    String title;
+    private String title;
     @NotNull
-    Integer year;
+    private Integer year;
     @NotNull
-    Set<AuthorForm> authors;
-    Set<String> tags;
+    private Set<AuthorForm> authors;
+    private Set<String> tags;
 }

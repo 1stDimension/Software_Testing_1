@@ -1,13 +1,13 @@
 package books.library.boklibrary.api;
 
-import lombok.Value;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
-@Value
+@Data
 class AuthorForm {
     @NotBlank
-    String name;
+    private String name;
     @NotBlank
-    String surname;
+    private String surname;
 }
