@@ -30,4 +30,9 @@ public class Author {
 
     @ManyToMany(mappedBy = "authors")
     private Set<Book> books = new HashSet<>();
+
+    public Author(@NotBlank String name, @NotBlank String surname) {
+        this.name = name;
+        this.surname = surname;
+    }
 }

@@ -18,6 +18,7 @@ import java.time.Year;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -62,5 +63,12 @@ public class Book {
         } else {
             throw new IllegalArgumentException(String.format("Book is not rented by %s", user.getUsername()));
         }
+    }
+
+    public Book(@NotBlank String title, @NotNull Integer year, Set<Author> authors, Set<String> tags) {
+        this.title = title;
+        this.year = year;
+        this.authors = authors;
+        this.tags = tags.stream().map(it -> new Tag(it, this)).collect(Collectors.toSet());
     }
 }

@@ -1,5 +1,6 @@
 package books.library.boklibrary.api;
 
+import books.library.boklibrary.domain.Author;
 import books.library.boklibrary.domain.AuthorRepository;
 import books.library.boklibrary.domain.Book;
 import books.library.boklibrary.domain.BookRepository;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -95,6 +97,30 @@ public class BookController {
             log.info(ex);
             return HttpStatus.METHOD_NOT_ALLOWED;
         }
+    }
+
+    @Transactional
+    @PostMapping
+    BookDto add(@Valid BookForm bookForm) {
+        Set<Author> authors = new HashSet<>();
+        bookForm.getAuthors().forEach(authorForm -> {
+            List<Author> existing = authorRepository.findAllByNameAndSurname(authorForm.getName(), authorForm.getSurname());
+            if (existing.isEmpty()) {
+                Author newAuthor = new Author(authorForm.getName(), authorForm.getSurname());
+                authors.add(newAuthor);
+            } else {
+                authors.addAll(existing);
+            }
+        });
+        Book newBook = new Book(bookForm.getTitle(), bookForm.getYear(), authors, bookForm.getTags());
+        authorRepository.saveAll(authors);
+        return BookDto.from(bookRepository.save(newBook));
+    }
+
+    @Transactional
+    @DeleteMapping(path = "/{bookId}")
+    void delete(@PathVariable long bookId) {
+        bookRepository.deleteById(bookId);
     }
 
     private List<BookDto> mapToDto(Set<Book> books) {
