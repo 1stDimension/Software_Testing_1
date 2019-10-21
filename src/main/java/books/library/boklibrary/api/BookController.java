@@ -101,17 +101,19 @@ public class BookController {
 
     @Transactional
     @PostMapping
-    BookDto add(@Valid BookForm bookForm) {
+    BookDto add(@RequestBody @Valid BookForm bookForm) {
         Set<Author> authors = new HashSet<>();
         bookForm.getAuthors().forEach(authorForm -> {
             List<Author> existing = authorRepository.findAllByNameAndSurname(authorForm.getName(), authorForm.getSurname());
             if (existing.isEmpty()) {
                 Author newAuthor = new Author(authorForm.getName(), authorForm.getSurname());
+
                 authors.add(newAuthor);
             } else {
                 authors.addAll(existing);
             }
         });
+
         Book newBook = new Book(bookForm.getTitle(), bookForm.getYear(), authors, bookForm.getTags());
         authorRepository.saveAll(authors);
         return BookDto.from(bookRepository.save(newBook));

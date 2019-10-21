@@ -1,5 +1,6 @@
 package books.library.boklibrary.domain;
 
+import com.sun.codemodel.internal.JForEach;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -69,6 +70,9 @@ public class Book {
         this.title = title;
         this.year = year;
         this.authors = authors;
-        this.tags = tags.stream().map(it -> new Tag(it, this)).collect(Collectors.toSet());
+        for (Author author : authors) {
+            author.addBook(this);
+        }
+//        this.tags = tags.stream().map(it -> new Tag(it, this)).collect(Collectors.toSet());
     }
 }
