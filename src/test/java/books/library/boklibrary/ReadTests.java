@@ -24,49 +24,62 @@ import static org.junit.Assert.*;
 public class ReadTests {
 
     private JSONObject getJsonObject(String requestUrl) throws IOException, JSONException {
-        URL url = new URL(requestUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        int status = connection.getResponseCode();
+        for (int i = 0; i < 3; i++) {
+            URL url = new URL(requestUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            int status = connection.getResponseCode();
+            if (status == 500)
+                continue;
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            stringBuilder.append(inputLine);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                stringBuilder.append(inputLine);
+            }
+            connection.disconnect();
+            in.close();
+
+            String response = stringBuilder.toString();
+
+            return new JSONObject(response);
         }
-        connection.disconnect();
-        in.close();
-
-        String response = stringBuilder.toString();
-        return new JSONObject(response);
+        return null;
     }
 
     private JSONArray getJsonArray(String requestUrl) throws IOException, JSONException {
-        URL url = new URL(requestUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        int status = connection.getResponseCode();
+        for (int i = 0; i < 3; i++) {
+            URL url = new URL(requestUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            int status = connection.getResponseCode();
+            if (status == 500)
+                continue;
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            stringBuilder.append(inputLine);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                stringBuilder.append(inputLine);
+            }
+            connection.disconnect();
+            in.close();
+
+            String response = stringBuilder.toString();
+            return new JSONArray(response);
         }
-        connection.disconnect();
-        in.close();
-
-        String response = stringBuilder.toString();
-        return new JSONArray(response);
+        return null;
     }
 
     @BeforeClass
     public static void setUpApp() {
         String[] names = {"z", "y", "z"};
-        BoklibraryApplication.main(names);
+        Thread app = new Thread(() -> BoklibraryApplication.main(names));
+        app.setDaemon(true);
+        app.start();
         String dockerFilePath = "src/main/docker/dockerfile";
 
     }
@@ -104,7 +117,8 @@ public class ReadTests {
                 process = Runtime.getRuntime().exec(String.format("sh -c %s", dockerExecCommand));
             }
             int exitCode = process.waitFor();
-            assert exitCode == 0;
+//            assert exitCode == 0;
+            Thread.sleep(100);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -230,7 +244,6 @@ public class ReadTests {
                 assertEquals("Harry Potter", book.getString("title"));
                 assertEquals(2012, book.getInt("year"));
                 assertFalse(book.getBoolean("rented"));
-
             }
 
         } catch (IOException | JSONException e) {
