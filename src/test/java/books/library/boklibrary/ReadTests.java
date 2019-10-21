@@ -3,10 +3,7 @@ package books.library.boklibrary;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -74,14 +71,22 @@ public class ReadTests {
         return null;
     }
 
+    static Thread app;
+
     @BeforeClass
     public static void setUpApp() {
         String[] names = {"z", "y", "z"};
-        Thread app = new Thread(() -> BoklibraryApplication.main(names));
+        app = new Thread(() -> BoklibraryApplication.main(names));
         app.setDaemon(true);
         app.start();
         String dockerFilePath = "src/main/docker/dockerfile";
 
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        System.out.println("HERE");
+        app.interrupt();
     }
 
     @After
@@ -93,10 +98,10 @@ public class ReadTests {
         try {
             if (isWindows) {
                 process = Runtime.getRuntime()
-                        .exec(String.format("cmd.exe %s", dockerExecCommand));
+                        .exec(String.format("cmd.exe /c %s", dockerExecCommand));
             } else {
                 process = Runtime.getRuntime()
-                        .exec(String.format("sh %s", dockerExecCommand));
+                        .exec(String.format("sh -c %s", dockerExecCommand));
             }
             int exitCode = process.waitFor();
             assert exitCode == 0;
